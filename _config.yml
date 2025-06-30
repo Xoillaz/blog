@@ -41,6 +41,9 @@ external_link:
 filename_case: 0
 render_drafts: false
 post_asset_folder: true
+marked:
+  prependRoot: true
+  postAsset: true
 relative_link: false
 future: true
 syntax_highlighter: highlight.js
@@ -50,6 +53,8 @@ highlight:
   tab_replace: ''
   wrap: true
   hljs: false
+  exclude_languages:
+    - mermaid
 prismjs:
   preprocess: true
   line_number: true
@@ -101,5 +106,11 @@ theme: next
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  - type: git
-    repo: git@github.com:Xoillaz/blog.git,main
+  
+# Estension - Search
+# Docs: https://theme-next.js.org/docs/third-party-services/search-services#Local-Search
+search:
+  path: search.xml
+  field: post
+  content: true
+  format: html

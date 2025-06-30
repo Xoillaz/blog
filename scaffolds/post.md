@@ -1,7 +1,8 @@
 ---
 title: {{ title }}
-comments: true
+comments: false
+date: {{ date }}
+updated: 
 categories:
 tags:
-date: {{ date }}
 ---

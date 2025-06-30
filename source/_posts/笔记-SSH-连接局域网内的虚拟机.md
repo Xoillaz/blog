@@ -2,6 +2,7 @@
 title: 笔记 | SSH 连接局域网内的虚拟机
 comments: true
 date: 2025-03-07 22:08:34
+updated: 
 categories:
 tags:
 ---
@@ -37,6 +38,6 @@ tags:
 	2. 更改其 NAT 设置
 	3. 添加端口转发规则：将 `192.168.132.128:22` 转发到主机端口 `2222`
 	```PowerShell
-	ssh root@192.1.114 -p 2222 # 在 VMhost 检验设置是否成功
+	ssh root@192.168.1.114 -p 2222 # 在 VMhost 检验设置是否成功
 	```
 3. 在 Client 通过 VisualStudioCode-RemoteSSH 访问服务
