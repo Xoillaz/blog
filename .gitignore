@@ -2,4 +2,5 @@ node_modules/
 public/
 _multiconfig.yml
 source/_drafts/
+source/.vscode/
 db.json

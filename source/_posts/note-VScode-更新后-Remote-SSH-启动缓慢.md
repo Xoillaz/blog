@@ -2,9 +2,12 @@
 title: 笔记 | VScode 更新后 Remote-SSH 启动缓慢
 comments: true
 date: 2025-03-17 20:44:17
-updated: 
-categories:
+updated: 2025-06-29 20:02:00
+categories: 经验总结
 tags:
+    - 远程开发
+    - ssh
+    - vscode
 ---
 
 今天 VScode 提醒更新，我允许操作以后发现 Remote - SSH 插件总是卡在登陆后的 “正在下载 vscode server…” 提示这里不动。我看了该进程的输出，也在服务器那边反复查看下载状态，又重启了几遍，没感觉到下载进度有什么推动，我想应该又是网络代理的问题，就干脆手动下好文件传过去。

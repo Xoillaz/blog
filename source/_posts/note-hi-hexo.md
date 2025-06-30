@@ -2,9 +2,12 @@
 title: 笔记｜hi, hexo
 comments: false
 date: 2025-06-29 20:59:06
-updated:
-categories:
-tags: SOP
+updated: 2025-06-30 16:46:00
+categories: 工具使用
+tags:
+  - 最佳实践
+  - 写作
+  - vscode
 ---
 # 我的写作流
 {% note info %}

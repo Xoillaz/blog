@@ -2,9 +2,13 @@
 title: 笔记 | SSH 连接局域网内的虚拟机
 comments: true
 date: 2025-03-07 22:08:34
-updated: 
-categories:
+updated: 2025-06-29 20:02:00
+categories: 经验总结
 tags:
+	- 远程开发
+	- ssh
+	- vm
+	- vscode
 ---
 
 为了学习运维知识我需要 Linux 的生产环境，现有的 Windows 笔记本和 Mac Mini 主机都不能满足我的需求，我想利用 Mac 桌面来操作 Linux，在我面前的选项：
