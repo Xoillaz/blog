@@ -31,7 +31,7 @@ tags:
 {% endgrouppicture %}
 
 # 我的博客部署过程
-1. [安装 hexo 框架及 NeXT 主题](https://theme-next.js.org/docs/getting-started/)
+1. [安装 hexo 框架及 NexT 主题](https://theme-next.js.org/docs/getting-started/)
 2. [按需修改 _config.next.yml，配置主题](https://theme-next.js.org/docs/theme-settings/)
 3. [采用 Github Page 的方式部署网站](https://hexo.io/zh-cn/docs/github-pages)
 

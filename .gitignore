@@ -4,3 +4,4 @@ _multiconfig.yml
 source/_drafts/
 source/.vscode/
 db.json
+.DS_Store

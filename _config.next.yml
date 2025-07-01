@@ -118,10 +118,11 @@ darkmode: false
 # External url should start with http:// or https://
 menu:
   home: / || fa fa-home
-  about: /about/ || fa fa-user
-  tags: /tags/ || fa fa-tags
-  categories: /categories/ || fa fa-th
-  #archives: /archives/ || fa fa-archive
+  archives: /archives/ || fa fa-archive
+  Now: /now/ || fa fa-clock
+  Tags: /tags/ || fa fa-tags
+  RSS: /atom.xml || fa fa-rss
+  #About: /about/ || fa fa-user
   #schedule: /schedule/ || fa fa-calendar
   #sitemap: /sitemap.xml || fa fa-sitemap
   #commonweal: /404/ || fa fa-heartbeat
@@ -179,7 +180,7 @@ site_state: true
 # Value before `||` delimiter is the target permalink, value after `||` delimiter is the name of Font Awesome icon.
 social:
   #GitHub: https://github.com/yourname || fab fa-github
-  #E-Mail: mailto:yourname@gmail.com || fa fa-envelope
+  E-Mail: mailto:xorillaz.persona@gmail.com || fa fa-envelope
   #Weibo: https://weibo.com/yourname || fab fa-weibo
   #Google: https://plus.google.com/yourname || fab fa-google
   #Twitter: https://twitter.com/yourname || fab fa-twitter
