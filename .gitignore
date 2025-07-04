@@ -5,3 +5,5 @@ source/_drafts/
 source/.vscode/
 db.json
 .DS_Store
+source/.DS_Store
+source/_posts/.DS_Store

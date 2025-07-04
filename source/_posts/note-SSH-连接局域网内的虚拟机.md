@@ -7,7 +7,6 @@ categories: 经验总结
 tags:
 	- 远程开发
 	- ssh
-	- vm
 	- vscode
 ---
 
