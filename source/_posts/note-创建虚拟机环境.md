@@ -17,21 +17,21 @@ intro: 使用 incus 创建虚拟机环境，并配置集群与网络。
 {% codeblock %}
 # debm-0: Debian 12, 4c8g
 # debm-k: Debian 12 KDE, 16c16g
-+------------+----------+
-|    NAME    | LOCATION |
-+------------+----------+
-| backup-110 | debm-k   |
-+------------+----------+
-| master-112 | debm-k   | # 模拟跳板机：2c4g
-+------------+----------+
-| web-102    | debm-k   |
-+------------+----------+
-| web-108    | debm-k   |
-+------------+----------+
-| db-107     | debm-0   |
-+------------+----------+
-| nfs-106    | debm-0   |
-+------------+----------+
++--------------+----------+
+|     NAME     | LOCATION |
++--------------+----------+
+| 0-master     | debm-k   | # 模拟跳板机：2c4g
++--------------+----------+
+| 1-nfs        | debm-0   |
++--------------+----------+
+| 2-backup     | debm-k   |
++--------------+----------+
+| 3-db         | debm-0   |
++--------------+----------+
+| 4-web-0      | debm-k   |
++--------------+----------+
+| 4-web-1      | debm-k   |
++--------------+----------+
 {% endcodeblock %}
 
 # 管理与网络
@@ -65,12 +65,9 @@ sleep 3
 # 安装基础软件
 incus exec ready -- apt update
 incus exec ready -- apt install -y tree wget curl yash lrzsz unzip ntpdate vim cron ftp rsync ufw openssh-server
-incus exec ready -- ufw enable
-incus exec ready -- ufw allow 22
-incus exec ready -- ufw reload
 incus stop ready
 
-# 输入示例：0#nfs 0#db k#master k#web k#web k#backup
+# 输入示例：0#1-nfs 0#3-db k#0-master k#4-web-0 k#web-1 k#2-backup
 read -A instances -p "请输入[主机#虚拟机]："
 
 for instance in "${instances[@]}"
@@ -79,47 +76,53 @@ do
         
         echo "正在复制虚拟机…"
         incus copy ready $vm --target debm-$host
-        
         incus start $vm
-        echo "等待实例启动中…"
-        for _ in {1..3}
-        do
-                sleep 5; incus list -c ns4L
-        done
-        
-        at=$(incus list -c n4 | sed -rn "/$vm/s#(.*)\.([0-9]+)\s(.*)#\2#gp")
-        incus exec $vm -- hostnamectl set-hostname $vm-$at
-        incus stop $vm; sleep 5
-        incus rename $vm $vm-$at
-        
-        incus config set $vm-$at snapshots.schedule @daily
-        echo "已完成 $vm-$at 的创建"
 done
 
-echo "重启所有实例中…"
-incus start --all; sleep 5
+echo "复制完毕，准备命名工作…"; sleep 3
+servers=($(incus list -c ns --format csv | awk -F, '$2 == "RUNNING" { print $1 }'))
+ip=200
+
+echo '[Match]
+Name=enp5s0
+
+[Network]
+Address=192.168.1.0/24
+Gateway=192.168.1.1
+DNS=8.8.8.8
+DNS=8.8.4.4
+DHCP=false' > ./sample.network
+
+for server in "${servers[@]}"
+do
+        sed -Ei "/Address/s#(.*)\.(.+)/24#\1\.$ip/24#" sample.network
+        incus file push ./sample.network $server/etc/systemd/network/enp5s0.network
+
+        incus exec $server -- systemctl restart systemd-networkd
+        incus config set $server snapshots.schedule @daily
+
+        ip=$((ip+1))
+done
 
 echo "创建结果如下："
-incus list -c ns4SL
+incus ls -c ns4LM
 {% endcodeblock %}
 
 # 创建结果
 {% codeblock %}
-+------------+---------+------------------------+-----------+----------+
-|    NAME    |  STATE  |          IPV4          | SNAPSHOTS | LOCATION |
-+------------+---------+------------------------+-----------+----------+
-| backup-110 | RUNNING | 192.168.1.110 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
-| db-107     | RUNNING | 192.168.1.107 (enp5s0) | 0         | debm-0   |
-+------------+---------+------------------------+-----------+----------+
-| master-112 | RUNNING | 192.168.1.112 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
-| nfs-106    | RUNNING | 192.168.1.106 (enp5s0) | 0         | debm-0   |
-+------------+---------+------------------------+-----------+----------+
-| ready      | STOPPED |                        | 0         | debm-0   |
-+------------+---------+------------------------+-----------+----------+
-| web-102    | RUNNING | 192.168.1.102 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
-| web-108    | RUNNING | 192.168.1.108 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
++--------------+---------+------------------------+----------+---------------+
+|     NAME     |  STATE  |          IPV4          | LOCATION | MEMORY USAGE% |
++--------------+---------+------------------------+----------+---------------+
+| 0-master     | RUNNING | 192.168.1.201 (enp5s0) | debm-k   | 6.2%          |
++--------------+---------+------------------------+----------+---------------+
+| 1-nfs        | RUNNING | 192.168.1.202 (enp5s0) | debm-0   | 13.0%         |
++--------------+---------+------------------------+----------+---------------+
+| 2-backup     | RUNNING | 192.168.1.203 (enp5s0) | debm-k   | 12.7%         |
++--------------+---------+------------------------+----------+---------------+
+| 3-db         | RUNNING | 192.168.1.204 (enp5s0) | debm-0   | 13.0%         |
++--------------+---------+------------------------+----------+---------------+
+| 4-web-0      | RUNNING | 192.168.1.205 (enp5s0) | debm-k   | 12.9%         |
++--------------+---------+------------------------+----------+---------------+
+| 4-web-1      | RUNNING | 192.168.1.206 (enp5s0) | debm-k   | 12.9%         |
++--------------+---------+------------------------+----------+---------------+
 {% endcodeblock %}

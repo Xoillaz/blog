@@ -63,20 +63,13 @@ do
   echo "正在配置服务器 $server …"
 
   incus exec $server -- bash -c '
-	useradd -m opsuser
+	  useradd -m opsuser
     echo "opsuser:07090709" | chpasswd
     usermod -aG sudo opsuser
     chsh -s /usr/bin/yash opsuser
     
-    ufw default deny incoming
-    ufw default allow outgoing
-    ufw allow from 192.168.1.112/24 to any port 22 proto tcp
-    ufw --force enable
-    
-    visudo
-    # 在打开的文件结尾添加如下内容：
-    # opsuser ALL=(ALL) NOPASSWD: ALL
-    # Defaults        logfile=/var/log/sudo.log
+    echo "opsuser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    echo "Defaults        logfile=/var/log/sudo.log" >> /etc/sudoers
   '
 done
 {% endcodeblock %}
