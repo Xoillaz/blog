@@ -2,7 +2,7 @@
 title: 笔记｜批量设置SSH
 comments: false
 date: 2025-07-09 20:38:21
-updated: 2025-07-09 20:38:21
+updated: 2025-07-16 20:48:21
 categories: 工具使用
 tags:
   - 最佳实践
@@ -15,23 +15,21 @@ intro:
 经【创建虚拟机环境】，现拥有以下实例可在对应的宿主机通过 `incus exec [vm] -- bash` 进行访问，但为了学习生产流程，须在每台服务器配置 SSH 访问。
 
 {% codeblock %}
-+------------+---------+------------------------+-----------+----------+
-|    NAME    |  STATE  |          IPV4          | SNAPSHOTS | LOCATION |
-+------------+---------+------------------------+-----------+----------+
-| backup-110 | RUNNING | 192.168.1.110 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
-| db-107     | RUNNING | 192.168.1.107 (enp5s0) | 0         | debm-0   |
-+------------+---------+------------------------+-----------+----------+
-| master-112 | RUNNING | 192.168.1.112 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
-| nfs-106    | RUNNING | 192.168.1.106 (enp5s0) | 0         | debm-0   |
-+------------+---------+------------------------+-----------+----------+
-| ready      | STOPPED |                        | 0         | debm-0   |
-+------------+---------+------------------------+-----------+----------+
-| web-102    | RUNNING | 192.168.1.102 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
-| web-108    | RUNNING | 192.168.1.108 (enp5s0) | 0         | debm-k   |
-+------------+---------+------------------------+-----------+----------+
++--------------+---------+------------------------+----------+---------------+
+|     NAME     |  STATE  |          IPV4          | LOCATION | MEMORY USAGE% |
++--------------+---------+------------------------+----------+---------------+
+| 0-master     | RUNNING | 192.168.1.201 (enp5s0) | debm-k   | 6.2%          |
++--------------+---------+------------------------+----------+---------------+
+| 1-nfs        | RUNNING | 192.168.1.202 (enp5s0) | debm-0   | 13.0%         |
++--------------+---------+------------------------+----------+---------------+
+| 2-backup     | RUNNING | 192.168.1.203 (enp5s0) | debm-k   | 12.7%         |
++--------------+---------+------------------------+----------+---------------+
+| 3-db         | RUNNING | 192.168.1.204 (enp5s0) | debm-0   | 13.0%         |
++--------------+---------+------------------------+----------+---------------+
+| 4-web-0      | RUNNING | 192.168.1.205 (enp5s0) | debm-k   | 12.9%         |
++--------------+---------+------------------------+----------+---------------+
+| 4-web-1      | RUNNING | 192.168.1.206 (enp5s0) | debm-k   | 12.9%         |
++--------------+---------+------------------------+----------+---------------+
 {% endcodeblock %}
 
 # 脚本
@@ -62,20 +60,23 @@ for server in "${servers[@]}"
 do
   echo "正在配置服务器 $server …"
 
-  incus exec $server -- bash -c '
-	  useradd -m opsuser
+  incus exec $server -- bash -c 'useradd -m -s /usr/bin/yash opsuser
     echo "opsuser:07090709" | chpasswd
     usermod -aG sudo opsuser
-    chsh -s /usr/bin/yash opsuser
     
     echo "opsuser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
     echo "Defaults        logfile=/var/log/sudo.log" >> /etc/sudoers
+
+    ufw default deny incoming
+    ufw default allow outgoing
+    ufw allow from 192.168.1.201/24 to any port 22 proto tcp
+    ufw enable
   '
 done
 {% endcodeblock %}
 
 {% codeblock ssh-auth.sh lang:bash %}
-ip_list=(102 106 107 108 110)
+ip_list={201..206}
 
 # 定义函数以便重复调用
 ops() {
@@ -87,12 +88,12 @@ ops() {
 echo "创建公私钥…"
 if [ ! -f /home/opsuser/.ssh/id_rsa ]; then
   echo "生成新密钥对..."
-  ssh-keygen -f /home/opsuser/.ssh/id_rsa -N '' >> /tmp/ssh_auth.log 2>&1
+  ssh-keygen -f /home/opsuser/.ssh/id_rsa -N '' >> /dev/null 2>&1 # >> /tmp/ssh_auth.log 2>&1
 fi
 
 echo "分发公钥…"
 for ip in ${ip_list[@]}; do
-  sshpass -p '07090709' ssh-copy-id -o StrictHostKeyChecking=no opsuser@192.168.1.$ip >> /tmp/ssh_auth.log 2>&1
+  sshpass -p '07090709' ssh-copy-id -o StrictHostKeyChecking=no opsuser@192.168.1.$ip >> /dev/null 2>&1 # >> /tmp/ssh_auth.log 2>&1
 
   echo "验证免密登录：主机名为 $(ops $ip hostname)"
 

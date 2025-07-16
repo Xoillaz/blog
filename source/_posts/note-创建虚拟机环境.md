@@ -7,7 +7,7 @@ tags:
   - incus
   - macvlan
 date: 2025-07-04 19:20:08
-updated: 2025-07-04 19:20:08
+updated: 2025-07-16 19:20:08
 intro: 使用 incus 创建虚拟机环境，并配置集群与网络。
 ---
 # 规划
